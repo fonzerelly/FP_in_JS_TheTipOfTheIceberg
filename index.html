@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Title</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <style type="text/css">
+      @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+      @import url(https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+      body { font-family: 'Droid Serif'; }
+      h1, h2, h3 {
+        font-family: 'Yanone Kaffeesatz';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono';  }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# FP in JS
+
+---
+
+# Agenda
+
+1. Why FP?
+  * Ugly loops
+  * its fun
+  * testability
+  * readability
+  * multicore
+2. important concepts
+  * First Class functions
+  * immutability
+  * Higher Order Functions
+  * seperate pure from impure
+  * seperate calculating from manipulating
+3. Never ever loops again
+  * map
+  * filter
+  * reduce
+4. get kind of pure functions by currying/ partial application
+  * What does Currying do
+  * A naive implementation
+  * Curriying vs partial application
+5. Memoization
+
+---
+
+# Why FP?
+
+For me, the path to FP began with this:
+```C++
+  //iterate C++ vector
+  for (
+    std::vector< int >::iterator it = myvector.begin() ;
+    it != myvector.end();
+    ++it
+  ) {
+    std::cout << ' ' << *it;
+  }
+}
+```
+I wrote this kind of this iteration a hunderet times and
+still did occasionaly type errors. It was ugly and cumbersome.
+<bild von einem genervten Programmierers>
+
+---
+
+# Why FP?
+
+But then, I had to look into Python and Ruby to find out:
+
+YOU CAN DO FAR BETTER THEN C++
+
+<bild von einem überraschten Programmierer>
+
+AND YOU ENCOUNTER SELDOM EDGE CASES, WHERE THE LITTLE PERFORMENCE LOSS REALLY DECIDES THE GAME.
+IT IS
+---
+
+# Why FP?
+
+Thanks to Crockford I found out:
+
+EVEN JAVASCRIPT CAN DO BETTER THEN C++
+
+```javascript
+["a","b","c"].forEach(function(value) {
+  console.log(value); // logs in each iteration one of the arrays content
+});
+```
+This is really nice:
+  * I don't have to calculate the iteration steps
+  * I don't have to extract the current value from the array
+  * ...
+
+---
+
+#Why FP?
+
+  * ...
+  * I even can modify the iteration from outside by passing different iteratorfunctions
+```javascript
+var evaluateList = (condition)
+  ? function (value) {
+      console.log(value);
+    }
+  : function (value) {
+      window.alert(value);
+    };
+["a", "b", "c"].forEach(evaluateList);
+```
+
+As I heard there are similar functions to do more then simply iterating
+a list and that this is related to Functional Programming,
+so I started digging...
+---
+
+#Why FP?
+
+##So let's start digging!
+
+* You get shorter Code
+* You get easier to read and write Code
+* You get more maintainable
+* You get Code that can easily ported on multicore platforms
+
+But must importantly
+* IT'S MUCH MORE FUN :)
+
+---
+
+#Preliminaries
+## Some Catchwords
+* FirstClass Functions
+* Higherorder Functions
+* Closures
+* Thunks
+* Lazy evaluation
+* ...
+
+
+#Preliminaries
+##Remove environmental dependencies -> to be able provide different environments for functions
+```javascript
+  var $form = $('form')
+  //...
+  var readInput = function () {
+    return $form.find("input").val();
+  };
+```
+
+```javascript
+  var readInput = function ($form) {
+    return $form.find("input").val();
+  };
+```
+
+So now you can modify the dependencies of the function by passing it as parameter
+and reuse the function on different forms. You are not any longer bound to
+that one first form.
+This makes it more testable and more reusable.
+
+---
+
+#Preliminaries
+
+## Separate calculating from manipulating functions
+
+If you can isolate the places where mutation happens,
+then you have more freedome in combining the pure functions
+that do the real work.
+Purely cacluating functions are easier also easier to test.
+
+ ---
+
+
+
+#Preliminaries
+##Reparate from arity -> to create new functions on demand to easier fit interfaces of helpers like map
+<make a slide with example for each idea>
+---
+#Play around with map, filter//, reduce
+---
+#What is currying
+---
+#what is partial application
+---
+#compose
+
+
+    </textarea>
+
+    <script src="scripts/remark-latest.min.js">
+    </script>
+    <script>
+var slideshow = remark.create({
+  highlightLanguage: 'javascript',
+  highlightStyle: 'monokai'
+});
+    </script>
+  </body>
+</html>
+<!--  <mindmap> -->
+<!--  *wenn ich eine funktion curry was erreiche ich damit -->
+<!--  * ICH ERREICHE DASS EIN PARAMETER FESTGELEGT IST -->
+<!--  +HEIsst daas zwangsläufig auch, dass die funktion pure ist? Nein: -->
+<!--     selbst der festgetackerte parameter kann sich dynamishc ändern -->
+<!--  * aber ich kann annahmen über die Änderung des Parameters treffen -->
+<!--    dass er sich nicht ändert... dann muss ich ihn aber auch nicht zwingend -->
+<!--    currien -->
+<!-- * warum curry ich nen Parameter? -->
+<!--   Weil ich die Funktion in einem Kontext verwenden will, in der ich ihr -->
+<!--   diesen Parameter nicht zur Verfügung stellen kann. -->
+<!--  -->
+<!--   get(member, obj) -->
+<!--   map([objs],get("name")) -->
+<!--   Was hat das nun mit dem unabhängig machen vom context zu tun? -->
+<!--   &#45;> Ich kann von der Funktion via curry viele Varianten bilden, -->
+<!--   die auf unterschiedliche Contexte passen. -->
+<!--  -->
+<!--  </mindmap> -->
+<!-- *separate pure from impure &#45;> to take advantage of memoization -->
