@@ -22,32 +22,20 @@
 class: center, middle
 
 # FP in JS
+## The tip of the iceberg
 
 ---
 
 # Agenda
 
 1. Why FP?
-  * Ugly loops
-  * its fun
-  * testability
-  * readability
-  * multicore
-2. important concepts
-  * First Class functions
-  * immutability
-  * Higher Order Functions
-  * seperate pure from impure
-  * seperate calculating from manipulating
-3. Never ever loops again
-  * map
-  * filter
-  * reduce
-4. get kind of pure functions by currying/ partial application
-  * What does Currying do
-  * A naive implementation
-  * Curriying vs partial application
-5. Memoization
+2. Never ever loops again
+3. Preliminaries
+4. Memoization
+5. Currying
+6. Partial Application
+7. Compose
+8. Put it all together
 
 ---
 
@@ -61,26 +49,17 @@ For me, the path to FP began with this:
     it != myvector.end();
     ++it
   ) {
-    std::cout << ' ' << *it;
+    std::cout &lt;&lt; ' ' &lt;&lt; *it;
   }
 }
 ```
 I wrote this kind of this iteration a hunderet times and
 still did occasionaly type errors. It was ugly and cumbersome.
-<bild von einem genervten Programmierers>
 
 ---
-
-# Why FP?
-
-But then, I had to look into Python and Ruby to find out:
-
-YOU CAN DO FAR BETTER THEN C++
-
-<bild von einem überraschten Programmierer>
-
-AND YOU ENCOUNTER SELDOM EDGE CASES, WHERE THE LITTLE PERFORMENCE LOSS REALLY DECIDES THE GAME.
-IT IS
+class: middle, center
+#Head First C++
+![Default-aligned image](images/annoyed-woman-jpeg.jpg)
 ---
 
 # Why FP?
@@ -120,33 +99,107 @@ As I heard there are similar functions to do more then simply iterating
 a list and that this is related to Functional Programming,
 so I started digging...
 ---
-
+class: middle, center
+#So let's start digging!
+![Default-aligned image](images/happy_programmer.JPG)
+---
 #Why FP?
-
-##So let's start digging!
 
 * You get shorter Code
 * You get easier to read and write Code
 * You get more maintainable
 * You get Code that can easily ported on multicore platforms
+* You can easily create DSLs
 
-But must importantly
-* IT'S MUCH MORE FUN :)
+But must importantly...
+
+---
+#Why FP?
+
+* You get shorter Code
+* You get easier to read and write Code
+* You get more maintainable
+* You get Code that can easily ported on multicore platforms
+* You can easily create DSLs
+
+But must importantly...
+
+ ...IT'S MUCH MORE FUN :)
+
+---
+
+#Never ever loops again
+###_.map
+
+```javascript
+_.map([1,2,3]. function (value) {
+  return 2* value;
+});   // results in [2,4,6]
+```
+
+* use it to apply a function to each value in a list.
+* the result is a new list with the resulting values.
+* a good indicator to use _.map is, if you expect the resulting array
+  to have the same length as the input array
+
+---
+
+#Never ever loops again
+###_.filter
+
+```javascript
+_.filter([1,2,3,4,5,6], function (value) {
+  return value % 2 === 0;
+});   // results in [2,4,6]
+```
+
+* use it to get rid of specific values in your input list
+* the result is a new list which the predicate function returned true for
+* a good indicator to use _.filter is, when the elements in your lists
+  have properties, that you can distinguish accuratly.
+
+---
+
+#Never ever loops again
+###_.reduce
+
+```javascript
+_.reduce(
+  [2,4,6],
+  function (initial, value) {
+    initial.push(value - 1);
+    initial.push(value);
+    return initital;
+  },
+  [] //this is  passed to the first call of the callback as initial
+); // results in [1,2,3,4,5,6]
+```
+* use it, if you expect a resulting datastructure, that in no means is compareable
+  to the input list.
+* the result could be a list, but depending on the kind of initial-value
+  you use, it could by anything: Number, String, Object, ...
+* Recognize that it is important to know an appropriate init value. Some Examples:
+  *String: ""
+  *Number for Addition: 0
+  *Number for Multiplication: 1
+  *Object: {}
+  ...
 
 ---
 
 #Preliminaries
-## Some Catchwords
+### Some Catchwords
 * FirstClass Functions
-* Higherorder Functions
+* Higher Order Functions
 * Closures
 * Thunks
 * Lazy evaluation
 * ...
 
+---
 
 #Preliminaries
-##Remove environmental dependencies -> to be able provide different environments for functions
+###Remove environmental dependencies -&gt; to be able provide different environments for functions
 ```javascript
   var $form = $('form')
   //...
@@ -169,29 +222,284 @@ This makes it more testable and more reusable.
 ---
 
 #Preliminaries
+### Separate calculating from manipulating functions
 
-## Separate calculating from manipulating functions
-
+```javascript
+var capitalizeTeaser = function ($elem, $teaserj) {
+  var elemText = $elem.text();
+  var teaser = elemText.slice(
+```
 If you can isolate the places where mutation happens,
 then you have more freedome in combining the pure functions
 that do the real work.
 Purely cacluating functions are easier also easier to test.
 
- ---
 
-
+---
 
 #Preliminaries
-##Reparate from arity -> to create new functions on demand to easier fit interfaces of helpers like map
-<make a slide with example for each idea>
+###Pure vs impure functions
+in this example, we have an impure Function, because its guts highly depend on
+the current date, which highly depends on the always changing value of Date.
+You can not predict the outcome of that function.
+```javascript
+function daysThisMonth() {
+  var date  = new Date(),
+      year  = date.getFullYear(),
+      month = date.getMonth(),
+      start = new Date(year, month , 1),
+      end   = new Date(year, month + 1, 1);
+  return (end - start)/(1000*60*60*24);
+}
+```
 ---
-#Play around with map, filter//, reduce
+
+#Preliminaries
+### Pure vs impure functions
+
+In this case, we get a function that can be used for different months and
+it is better predictable, because you will always get the same results from it, no
+matter what the current date is.
+
+```javascript
+function daysInMonth(year, month) {
+  var start = new Date(year, month - 1, 1),
+      end = new Date(year, month, 1);
+  return (end - start)/(1000*60*60*24);
+}
+```
 ---
-#What is currying
+
+#memoize
+### So what was this purity all about?
+
+```javascript
+var cachedSin = _.memoize(Math.sin); // A perfect example
+
+var cached$ = _.memoize(jQuery); // a discussable example
+```
+
+* _.memoize caches a functions return value in a hashmap.
+* base on the input parameters it creates a key
+* evluates the function only the first time
+* stores the result associated with the key
+* a second call with the same aruments will lookup the result from the hashmap
+
+
+
 ---
-#what is partial application
+
+#Preliminaries
+##Separate functions from their arity
+* provide parameters when it is convenient
+* create new functions based on other with specific scope
+* create new functions to fit the callback-interfaces of helpers like map
+
+And this is where we start the Magic
+
 ---
+class: middle, center
+#Haskell Curry
+
+![Default-aligned image](images/curry-mario.png)
+
+---
+#CURRYING
+
+###The act of transforming a function of several arguments into a chain of functions of one argument that will yield the same result when called in sequence with the same arguments.
+
+###f(x, y, z) = g(x)(y)(z)
+---
+#CURRYING
+### in JavaScript
+
+```javascript
+function curry(fn) {
+  return function () {
+    if (fn.length &gt; arguments.length) {
+      var slice = Array.prototype.slice;
+      var args = slice.apply(arguments);
+      return function () {
+        return fn.apply(
+          null, args.concat(slice.apply(arguments))
+        );
+      };
+    }
+    return fn.apply(null, arguments);
+  };
+}
+```
+---
+#CURRYING
+
+```javascript
+var get = _.curry(function (property, object) {
+  return object[property];
+});
+
+get("name"); //results in a new function
+get("name")({name: "Homer Simpson"}); // results in "Homer Simpson"
+
+//JSON-Data
+var data = [
+  {
+    name: "Montgomery Burns",
+    account: {
+      pin: 12345,
+      income: 99999999999999
+    }
+  },
+  {
+    name: "Homer Simpson",
+    account: {
+      pin: 54321,
+      income: 100
+    }
+  }
+];
+
+_.map(data, get("name")) //["Homer Simpson", "Montgomery Burns"]
+```
+---
+
+# Partial Applicaiton
+
+```javascript
+var partial = function (fn) {
+  var slice = Array.prototype.slice;
+  var args = slice.call(arguments, 1)
+  return function () {
+    var newArgs = slice.call(arguments);
+    return fn.apply(null, args.concat(newArgs))
+  }
+};
+```
+---
+# Partial Application
+### in Action
+
+```javascript
+var add = function (a, b, c) {
+  return a + b + c;
+}
+
+var four = partial(add, 1,1,2); // results in a new function
+four();                         // 4
+
+
+var logSomeNumber = function (fn) {
+  console.log(fn());
+};
+logSomeNumber(four) //logs 4
+logSomeNumber(_.constant(42)) // logs 42
+```
+
+With this technique you can postpone evaluation
+also known as Lazy Evaluation
+
+
+---
+# bind
+### Can I do partial applicaion also with Object Methods?
+
+```javascript
+Function.prototype.bind // function bind { [native code ] }
+
+var log = console.log.bind(console, "LOG: "); //sets also the this reference
+log("Hello bind"); // logs "LOG: Hello bind"
+
+setTimeout(
+  _.partial(
+    log,
+    "Some Time Later"
+  ),
+  3600
+); // logs "LOG: Some Time Later" after an hour
+```
+Footnote: console.log takes more then one parameter and concatenates them.
+
+---
+
 #compose
+```javascript
+var double = function (value) {
+      return 2*value;
+    },
+    log = console.log.bind(console);
+
+_.compose(log, double)(21); // logs 42
+
+```
+
+* _.compose let you combine your tiny functions to create more complex functionalities.
+* functions get evaluated from right to left
+* the return value form the previous function gets passed to the next one
+
+
+---
+#Plug it all together
+### Remember the data structure
+
+```javascript
+//JSON-Data
+var data = [
+  {
+    name: "Montgomery Burns",
+    account: {
+      pin: 12345,
+      income: 99999999999999
+    }
+  },
+  {
+    name: "Homer Simpson",
+    account: {
+      pin: 54321,
+      income: 100
+    }
+  }
+];
+```
+---
+#Plug it all together
+
+```javascript
+//gross national product
+(function ($) {
+  var multiply = function (a,b) {
+        return a * b;
+      },
+      get = _.curry(function (property, object) {
+        return object[property];
+      }),
+      add = function (a, b) {
+        return a + b;
+      };
+
+  $(document).ready(function () {
+    var account                = get("account"),
+        income                 = get("income"),
+        taxes                  = _.partial (multiply, 0.19),
+        contribution           = _.compose(taxes, income, account),
+        contributionPerCitizen = _.partial(_.map, _, contribution),
+        summ                   = _.partial(
+          _.reduce, _, add, 0 // parameter order matters
+        );
+    $(".result").html(
+      "Gross National Product of Springfield: " +
+      summ(contributionPerCitizen(data));
+    );
+  };
+}(jQuery));
+```
+---
+class: middle, center
+#Now it's up to you
+
+###[http://jsfiddle.net/fonzerelly/0edzvay0/]
+
+![Default-aligned image](images/uncle_sam.jpg)
+
+
 
 
     </textarea>
@@ -210,7 +518,7 @@ var slideshow = remark.create({
 <!--  *wenn ich eine funktion curry was erreiche ich damit -->
 <!--  * ICH ERREICHE DASS EIN PARAMETER FESTGELEGT IST -->
 <!--  +HEIsst daas zwangsläufig auch, dass die funktion pure ist? Nein: -->
-<!--     selbst der festgetackerte parameter kann sich dynamishc ändern -->
+<!--     selbst der festgetackerte parameter kann sich dynamishc ändern wenn er ein referenz objekt ist -->
 <!--  * aber ich kann annahmen über die Änderung des Parameters treffen -->
 <!--    dass er sich nicht ändert... dann muss ich ihn aber auch nicht zwingend -->
 <!--    currien -->
