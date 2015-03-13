@@ -185,7 +185,7 @@ class: middle, center
 
 ---
 
-#memoize
+#_.memoize
 ```javascript
 var createLookup = function ($parent) {
   return _.memoize(function(selector) {
@@ -197,17 +197,63 @@ $.doneEach(".my-div", function ($myDiv) {
   var lookup = createLookup($myDiv) {
   lookup("input"); //finds all input fields in $myDiv;
   lookup("input"); //returns the same CACHED result
-})
+});
 ```
 ---
 
-#memoize
-###Dont
+#_.memoize
+###Don't use _.memoize on impure functions!!!
 
-* _.compose let you combine your tiny functions to create more complex functionalities.
-* functions get evaluated from right to left
-* the return value form the previous function gets passed to the next one
+```javascript
+var chattyAdd2 = _.memoize(function(value) {
+  var result = value + 2;
+  console.log(result);
+  return result;
+});
 
+chattyAdd2(5) // returns 7 and logs 7
+chattyAdd2(5) // only returns 7. log got omitted
+```
+
+---
+class: middle, center
+#Jetzt mal selber probieren
+###[http://jsfiddle.net/fonzerelly/xxxxx/]
+---
+#_.compose
+```javascript
+var data = {
+    name: "Montgomery Burns",
+    account: {
+      number: 0001,
+      income: 900000000
+    }
+  };
+
+var getIncome = _.compose(get("income"), get("account"));
+
+getIncome(data); //900000000
+```
+
+---
+#_.compose
+```javascript
+var data = {
+    name: "Montgomery Burns",
+    account: {
+      number: 0001,
+      income: 900000000
+    }
+  }
+
+  var appendCurrency = function (income) {
+         return income + "$";
+      },
+      getIncome = _.compose(appendCurrency, get("income"), get("account"));
+
+
+getIncome(data); //900000000
+```
 
 ---
 #Plug it all together
@@ -236,46 +282,33 @@ var data = [
 #Plug it all together
 
 ```javascript
-//gross national product
 (function ($) {
-  var multiply = function (a,b) {
-        return a * b;
-      },
-      get = _.curry(function (property, object) {
+  var get = _.curry(function (property, object) {
         return object[property];
       }),
-      add = function (a, b) {
-        return a + b;
-      };
+      getIncome = _compose(get("account"), get("income"));
+      createLineFromCustomer = function(customer) {
+        var $name   = $("<div/>").text(get("name")(customer)),
+            $income = $("<div/>").text(getIncome(customer);
+        return $name.html() + $income.html();
+      },
+      insertLine = function($parent, line) {
+        $parent.append(line);
+      },
 
-  $(document).ready(function () {
-    var account                = get("account"),
-        income                 = get("income"),
-        taxes                  = _.partial (multiply, 0.19),
-        contribution           = _.compose(taxes, income, account),
-        contributionPerCitizen = _.partial(_.map, _, contribution),
-        summ                   = _.partial(
-          _.reduce, _, add, 0 // parameter order matters
-        );
-    $(".result").html(
-      "Gross National Product of Springfield: " +
-      summ(contributionPerCitizen(data));
-    );
-  };
+
+  $.done(".income-list", function ($incomeList) {
+    var writeIncomeLine = _.partial(insertLine, $incomeList);
+
+    _.map(data, _.compose(
+      writeIncomeLine,
+      createLineFromCustomer
+    ));
+  });
 }(jQuery));
 ```
 ---
-class: middle, center
-#Now it's up to you
-
-###[http://jsfiddle.net/fonzerelly/0edzvay0/]
-
-![Default-aligned image](images/uncle_sam.jpg)
-
-
-Have a look at [http://xgrommx.github.io/rx-book/]
----
-#Missing Slides
+#Thanx for listening
 ---
 # A naive Implementation of partial
 
