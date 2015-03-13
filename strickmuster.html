@@ -181,7 +181,7 @@ get("name")(account); // results in "Homer Simpson"
 
 class: middle, center
 #Jetzt mal selber probieren
-###[http://jsfiddle.net/fonzerelly/en21zLxt/2/]
+###[http://jsfiddle.net/fonzerelly/en21zLxt/]
 
 ---
 
@@ -214,11 +214,12 @@ var chattyAdd2 = _.memoize(function(value) {
 chattyAdd2(5) // returns 7 and logs 7
 chattyAdd2(5) // only returns 7. log got omitted
 ```
-
 ---
+
 class: middle, center
 #Jetzt mal selber probieren
-###[http://jsfiddle.net/fonzerelly/xxxxx/]
+###[http://jsfiddle.net/fonzerelly/8gbypzxd/]
+
 ---
 #_.compose
 ```javascript
@@ -234,7 +235,6 @@ var getIncome = _.compose(get("income"), get("account"));
 
 getIncome(data); //900000000
 ```
-
 ---
 #_.compose
 ```javascript
@@ -254,8 +254,12 @@ var data = {
 
 getIncome(data); //900000000
 ```
-
 ---
+class: middle, center
+#Jetzt mal selber probieren
+###[http://jsfiddle.net/fonzerelly/rxkq6bd8/]
+---
+
 #Plug it all together
 ### Remember the data structure
 ```javascript
