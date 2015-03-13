@@ -175,20 +175,34 @@ var account= {
 };
 
 get("name");       //results in a new function
-get("name")(obj); // results in "Homer Simpson"
+get("name")(account); // results in "Homer Simpson"
 ```
 ---
 
-#compose
+class: middle, center
+#Jetzt mal selber probieren
+###[http://jsfiddle.net/fonzerelly/en21zLxt/2/]
+
+---
+
+#memoize
 ```javascript
-var double = function (value) {
-      return 2*value;
-    },
-    log = console.log.bind(console);
+var createLookup = function ($parent) {
+  return _.memoize(function(selector) {
+    return $parent.find(selector);
+  };
+};
 
-_.compose(log, double)(21); // logs 42
-
+$.doneEach(".my-div", function ($myDiv) {
+  var lookup = createLookup($myDiv) {
+  lookup("input"); //finds all input fields in $myDiv;
+  lookup("input"); //returns the same CACHED result
+})
 ```
+---
+
+#memoize
+###Dont
 
 * _.compose let you combine your tiny functions to create more complex functionalities.
 * functions get evaluated from right to left
